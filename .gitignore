@@ -94,3 +94,7 @@ ENV/
 ./Password
 ./Open\ Sesame
 ./Unlock
+
+./Password/*
+./Open\ Sesame/*
+./Unlock/*
