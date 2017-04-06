@@ -18,14 +18,14 @@ import scipy.io.wavfile
 
 if __name__ == '__main__':
     #Don't Stop Believing
-    FsMusic, XMusic = scipy.io.wavfile.read("journey.wav") 
-    FsSpeech, XSpeech = scipy.io.wavfile.read("speech.wav")
+    FsMusic, XMusic = scipy.io.wavfile.read("./Password/2017_03_30_ap_1.wav")
+    FsSpeech, XSpeech = scipy.io.wavfile.read("./Password/2017_03_30_ap_2.wav")
 
     #Step 1: Try a raw delay embedding
     #Note that dim*Tau here spans a half a second of audio,
     #since Fs is the sample rate
     dim = round(FsMusic/200)
-    Tau = 100
+    Tau = 50
     dT = FsMusic/100
     Y = getSlidingWindowInteger(XMusic[0:FsMusic*3], dim, Tau, dT)
     #Mean-center and normalize
