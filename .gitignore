@@ -91,10 +91,10 @@ ENV/
 ./ripser-coeff.exe
 ./ripser.exe
 
-./Password
-./Open\ Sesame
-./Unlock
+Password
+Open\ Sesame
+Unlock
 
-./Password/*
-./Open\ Sesame/*
-./Unlock/*
+Password/*
+Open\ Sesame/*
+Unlock/*
