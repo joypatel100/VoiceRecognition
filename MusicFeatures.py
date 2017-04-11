@@ -79,12 +79,12 @@ def getMFCC(X, Fs, hopSize, MEL_NBANDS = 40, MEL_NMFCC = 20, MEL_MINFREQ = 50, M
     #Step 4: Compute DCT and return mel coefficients
     MFCCDCT = dct(MFCC, axis = 0, norm = 'ortho')
     MFCCDCT = MFCC[0:MEL_NMFCC, :]
-    
+
     #Step 5: Do Liftering
     coeffs = np.arange(MFCCDCT.shape[0])**lifterexp
     coeffs[0] = 1
     MFCCDCT = coeffs[:, None]*MFCCDCT
-    
+
     return (MFCC, MFCCDCT, P)
 
 def getAudioNovelty(X, Fs, hopSize):
@@ -93,17 +93,27 @@ def getAudioNovelty(X, Fs, hopSize):
     diff[diff < 0] = 0
     return np.sum(diff, 0)
 
+def getNov(filename):
+    Fs, X = scipy.io.wavfile.read(filename)
+    hopSize = 10
+    (MFCC, MFCCDCT, P) = getMFCC(X, Fs, hopSize)
+    novFn = getAudioNovelty(X, Fs, hopSize)
+
+    nsamples = 400
+    novFn = novFn[0:nsamples]
+    return novFn
+
 if __name__ == '__main__':
     Fs, X = scipy.io.wavfile.read("journey.wav")
     hopSize = 512
     (MFCC, MFCCDCT, P) = getMFCC(X, Fs, hopSize)
     novFn = getAudioNovelty(X, Fs, hopSize)
-    
+
     nsamples = 400
     P = P[:, 0:nsamples]
     novFn = novFn[0:nsamples]
     t = np.arange(nsamples)*hopSize/float(Fs)
-    
+
     plt.subplot(211)
     plt.imshow(np.log(P), cmap = 'afmhot', aspect = 'auto')
     plt.title("Spectrogram")

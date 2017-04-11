@@ -1,11 +1,4 @@
-"""
-Programmer: Chris Tralie (ctralie@alumni.princeton.edu)
-Purpose: To show how TDA can be used to quantify how periodic
-an audio clip is.  Simple example with music versus speech.
-Show how doing a delay embedding on raw audio is a bad idea when
-the length of the period is on the order of seconds, and how
-"audio novelty functions" come in handy
-"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.decomposition import PCA
@@ -15,88 +8,22 @@ from TDA import *
 from SlidingWindow import *
 from MusicFeatures import *
 import scipy.io.wavfile
+from MusicFeatures import *
+from DistanceFunctions import *
+from MusicSpeech import *
+
 
 if __name__ == '__main__':
-    #Don't Stop Believing
-    FsMusic, XMusic = scipy.io.wavfile.read("./Password/2017_03_30_ap_1.wav")
-    FsSpeech, XSpeech = scipy.io.wavfile.read("./Password/2017_03_30_ap_2.wav")
-
-    #Step 1: Try a raw delay embedding
-    #Note that dim*Tau here spans a half a second of audio,
-    #since Fs is the sample rate
-    dim = round(FsMusic/200)
-    Tau = 50
-    dT = FsMusic/100
-    Y = getSlidingWindowInteger(XMusic[0:FsMusic*3], dim, Tau, dT)
-    #Mean-center and normalize
-    Y = Y - np.mean(Y, 1)[:, None]
-    Y = Y/np.sqrt(np.sum(Y**2, 1))[:, None]
-
-    PDs = doRipsFiltration(Y, 1)
-    pca = PCA()
-    Z = pca.fit_transform(Y)
-
-    plt.figure(figsize=(12, 6))
-    plt.subplot(121)
-    plt.title("2D PCA Raw Audio Embedding")
-    plt.scatter(Z[:, 0], Z[:, 1])
-    plt.subplot(122)
-    plotDGM(PDs[1])
-    plt.title("Persistence Diagram")
-
-
-    #Step 2: Do sliding window on audio novelty functions
-    #(sliding window of sliding windows!)
-    hopSize = 512
-
-    #First do audio novelty function on music
-    novFnMusic = getAudioNovelty(XMusic, FsMusic, hopSize)
-    dim = 20
-    #Make sure the window size is half of a second, noting that
-    #the audio novelty function has been downsampled by a "hopSize" factor
-    Tau = (FsMusic/2)/(float(hopSize)*dim)
-    dT = 1
-    Y = getSlidingWindowInteger(novFnMusic, dim, Tau, dT)
-    print("Y.shape = ", Y.shape)
-    #Mean-center and normalize
-    Y = Y - np.mean(Y, 1)[:, None]
-    Y = Y/np.sqrt(np.sum(Y**2, 1))[:, None]
-
-    PDs = doRipsFiltration(Y, 1)
-    pca = PCA()
-    Z = pca.fit_transform(Y)
-
-    plt.figure(figsize=(12, 6))
-    plt.subplot(121)
-    plt.title("2D PCA Music Novelty Function Sliding Window")
-    plt.scatter(Z[:, 0], Z[:, 1])
-    plt.subplot(122)
-    plotDGM(PDs[1])
-    plt.title("Persistence Diagram")
-
-
-    #Now do audio novelty function on speech
-    novFnSpeech = getAudioNovelty(XSpeech, FsSpeech, hopSize)
-    dim = 20
-    #Make sure the window size is half of a second, noting that
-    #the audio novelty function has been downsampled by a "hopSize" factor
-    Tau = (FsSpeech/2)/(float(hopSize)*dim)
-    dT = 1
-    Y = getSlidingWindowInteger(novFnSpeech, dim, Tau, dT)
-    print("Y.shape = ", Y.shape)
-    #Mean-center and normalize
-    Y = Y - np.mean(Y, 1)[:, None]
-    Y = Y/np.sqrt(np.sum(Y**2, 1))[:, None]
-
-    PDs = doRipsFiltration(Y, 1)
-    pca = PCA()
-    Z = pca.fit_transform(Y)
-
-    plt.figure(figsize=(12, 6))
-    plt.subplot(121)
-    plt.title("2D PCA Speech Novelty Function Sliding Window")
-    plt.scatter(Z[:, 0], Z[:, 1])
-    plt.subplot(122)
-    plotDGM(PDs[1])
-    plt.title("Persistence Diagram")
-    plt.show()
+    folder = "Password"
+    features = lambda folder, person, num : [getRips("{0}/2017_03_30_{1}_{2}.wav".format(folder, person, i)) for i in range(1,num+1)]
+    person0 = features(folder,"ap",5)
+    person1 = features(folder,"jp",5)
+    print "Austin Top 30 Bars H0"
+    print person0
+    print "Joy Top 30 Bars H0"
+    print person1
+    d = pairwise_matrix(person0, person0 + person1, "euclidean")
+    print "distance from Austin to Austin"
+    print d[:,0:5]
+    print "distance from Austin to Joy"
+    print d[:,5:10]

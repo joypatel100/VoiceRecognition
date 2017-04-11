@@ -16,9 +16,27 @@ from SlidingWindow import *
 from MusicFeatures import *
 import scipy.io.wavfile
 
+def getRips(filename):
+    FsMusic, XMusic = scipy.io.wavfile.read(filename)
+    hopSize = 50
+    novFnMusic = getAudioNovelty(XMusic, FsMusic, hopSize)
+    dim = 20
+    Tau = (FsMusic/2)/(float(hopSize)*dim)
+    dT = 1
+    Y = getSlidingWindowInteger(novFnMusic, dim, Tau, dT)
+    Y = Y - np.mean(Y, 1)[:, None]
+    Y = Y/np.sqrt(np.sum(Y**2, 1))[:, None]
+
+    PDs = doRipsFiltration(Y, 1)
+    d0 = PDs[0]
+    d1 = PDs[1]
+    #return d0[:,1] - d0[:,0], d1[:,1] - d1[:,0]
+    delta = np.array(sorted(d0[:,1] - d0[:,0], reverse=True))[0:30]
+    return delta
+
 if __name__ == '__main__':
     #Don't Stop Believing
-    FsMusic, XMusic = scipy.io.wavfile.read("journey.wav") 
+    FsMusic, XMusic = scipy.io.wavfile.read("journey.wav")
     FsSpeech, XSpeech = scipy.io.wavfile.read("speech.wav")
 
     #Step 1: Try a raw delay embedding
