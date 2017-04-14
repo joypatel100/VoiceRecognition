@@ -10,6 +10,7 @@ from scipy.io import wavfile
 from scipy.io import savemat
 from scipy.fftpack import dct
 import matplotlib.pyplot as plt
+import librosa.feature as libf
 
 
 #Mirror what Matlab's code does
@@ -102,6 +103,43 @@ def getNov(filename):
     nsamples = 400
     novFn = novFn[0:nsamples]
     return novFn
+
+'''Spectral Centroid
+
+Returns: centroid-- np.ndarray [shape=(1, t)], centroid frequencies
+'''
+def getSpectralCentroid(X, Fs):
+    return libf.spectral_centroid(y=X, sr=Fs)
+
+'''Tonal Centroid
+
+Returns: tonnetz-- np.ndarray [shape(6, t)]
+        Tonal centroid features for each frame.
+        Tonnetz dimensions:
+        0: Fifth x-axis
+        1: Fifth y-axis
+        2: Minor x-axis
+        3: Minor y-axis
+        4: Major x-axis
+        5: Major y-axis
+'''
+def getTonalCentroid(X, Fs):
+    return libf.tonnetz(y=X, sr=Fs)
+
+
+'''Root-mean-square Energy
+
+Returns: rms-- np.ndarray [shape=(1, t)], RMS value for each frame
+'''
+def getEnergy(X): #(X, frame_length=2048,hop_length=512)
+    return libf.rmse(y=X)
+
+'''Tempogram
+
+Returns: tempogram-- np.ndarray [shape=(win_length, n)], Localized autocorrelation of the onset strength envelope
+'''
+def getTempogram(X, Fs): # (hop_length=512, win_length=384)
+    return libf.tempogram(y=X, sr=Fs)
 
 if __name__ == '__main__':
     Fs, X = scipy.io.wavfile.read("journey.wav")
