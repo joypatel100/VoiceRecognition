@@ -50,8 +50,8 @@ def binPD (PD, birth_max, death_max, birth_min=0.0, death_min=0.0, axis_bins=3):
 
 if __name__ == '__main__':
     #Don't Stop Believing
-    FsMusic, XMusic = scipy.io.wavfile.read("Austin/2017_03_30_ao_2.wav")
-    FsSpeech, XSpeech = scipy.io.wavfile.read("2017_03_30_jp.wav")
+    FsMusic, XMusic = scipy.io.wavfile.read('2017_03_30_ao_1.wav') #("Austin/2017_03_30_ao_2.wav")
+    FsSpeech, XSpeech = scipy.io.wavfile.read("2017_03_30_ao.wav")
 
     #Step 1: Try a raw delay embedding
     #Note that dim*Tau here spans a half a second of audio,
@@ -89,7 +89,9 @@ if __name__ == '__main__':
     dim = 20
     #Make sure the window size is half of a second, noting that
     #the audio novelty function has been downsampled by a "hopSize" factor
+    print FsMusic
     Tau = (FsMusic /2)/(float(hopSize)*dim)
+    print Tau
     dT = 1
     print len(MFCC)
     print len(MFCCDCT)
@@ -101,10 +103,10 @@ if __name__ == '__main__':
 
     PDs = doRipsFiltration(Y, 1)
     print PDs[1]
-    print binPD(PDs[1], 2, 2, 0.5, 0.5, 6)
+    #print binPD(PDs[1], 2, 2, 0.5, 0.5, 6)
     pca = PCA()
     Z = pca.fit_transform(Y)
-    print pca.explained_variance_
+    #print pca.explained_variance_
     indices = range(len(Z))
 
     plt.figure(figsize=(12, 6))

@@ -90,9 +90,9 @@ def doRipsFiltrationDM(D, maxHomDim, thresh = -1, coeff = 2):
     if thresh > 0:
         callThresh = thresh
     if coeff > 2:
-        proc = subprocess.Popen(["ripser/ripser-coeff.exe", "--dim", "%i"%maxHomDim, "--threshold", "%g"%callThresh, "--modulus", "%i"%coeff, "DLower.txt"], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(["ripser/ripser-coeff", "--dim", "%i"%maxHomDim, "--threshold", "%g"%callThresh, "--modulus", "%i"%coeff, "DLower.txt"], stdout=subprocess.PIPE)
     else:
-        proc = subprocess.Popen(["ripser/ripser.exe", "--dim", "%i"%maxHomDim, "--threshold", "%g"%callThresh, "DLower.txt"], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(["ripser/ripser", "--dim", "%i"%maxHomDim, "--threshold", "%g"%callThresh, "DLower.txt"], stdout=subprocess.PIPE)
     #stdout = proc.communicate()[0]
     PDs = []
     while True:
