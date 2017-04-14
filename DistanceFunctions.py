@@ -4,13 +4,13 @@ import math
 '''
 Returns pairwise distance matrix between points clouds pc0 and pc1.
 '''
-def pairwise_matrix(pc0, pc1, func):
+def pairwise_matrix(pc0, pc1, func, feature_name):
     obs0 = len(pc0)
     obs1 = len(pc1)
     res = np.zeros([obs0, obs1])
     for i in range(obs0):
         for j in range(obs1):
-            res[i][j] = dist_functions[func](pc0[i], pc1[j])
+            res[i][j] = dist_functions[func](pc0[i].features[feature_name], pc1[j].features[feature_name])
     return res
 
 '''
@@ -23,7 +23,7 @@ def euclidean(u, v):
 Finds the cross correlation between raw inputs u and v.
 '''
 def cross_correlation(u, v):
-    return np.correlate(u,v)
+    return max(np.correlate(u,v))
 
 '''
 Multiscale kernel distance between 2 persistence diagrams P and Q
