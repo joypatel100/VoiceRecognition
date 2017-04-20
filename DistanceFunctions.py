@@ -1,6 +1,20 @@
 import numpy as np
 import math
 
+def record_distances(pc0, pc1, func, feature_name):
+    res = []
+    for i in range(pc0):
+        for j in range(pc1):
+            res.append(dist_functions[func](pc0[i].features[feature_name], pc1[j].features[feature_name]))
+    return res
+
+def record_self_distances(pc0, func, feature_name):
+    res = []
+    for i in range(len(pc0)):
+        for j in range(i+1, len(pc0)):
+            res.append(dist_functions[func](pc0[i].features[feature_name], pc1[j].features[feature_name]))
+    return res
+
 '''
 Returns pairwise distance matrix between points clouds pc0 and pc1.
 '''
