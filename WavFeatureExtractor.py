@@ -35,7 +35,6 @@ class WavFeatureExtractor:
             #Mean-center and normalize
             Y = Y - np.mean(Y, 1)[:, None]
             Y = Y/np.sqrt(np.sum(Y**2, 1))[:, None]
-
             PDs = doRipsFiltration(Y, 1)
             results.append(ExtractedFeature(XMusic, raw_features, PDs[1], self.binPD(PDs[1], 2, 2, 0, 0, 6)))
         return results

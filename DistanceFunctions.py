@@ -3,8 +3,8 @@ import math
 
 def record_distances(pc0, pc1, func, feature_name):
     res = []
-    for i in range(pc0):
-        for j in range(pc1):
+    for i in range(len(pc0)):
+        for j in range(len(pc1)):
             res.append(dist_functions[func](pc0[i].features[feature_name], pc1[j].features[feature_name]))
     return res
 
@@ -12,7 +12,7 @@ def record_self_distances(pc0, func, feature_name):
     res = []
     for i in range(len(pc0)):
         for j in range(i+1, len(pc0)):
-            res.append(dist_functions[func](pc0[i].features[feature_name], pc1[j].features[feature_name]))
+            res.append(dist_functions[func](pc0[i].features[feature_name], pc0[j].features[feature_name]))
     return res
 
 '''
@@ -42,7 +42,7 @@ def cross_correlation(u, v):
 '''
 Multiscale kernel distance between 2 persistence diagrams P and Q
 '''
-def multiscale_kernel(P, Q):
+def multiscale_kernel(P, Q, sigma=1.0):
     kernel = 0.0
     norm = lambda x, y : math.pow(math.pow(x[0]-y[0],2) + math.pow(x[1]-y[1],2),0.5)
     for p in P:
