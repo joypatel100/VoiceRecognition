@@ -14,6 +14,7 @@ from MusicSpeech import *
 from WavFeatureExtractor import *
 from scipy import stats
 from sklearn.svm import SVC
+from sklearn.neighbors import KNeighborsClassifier
 
 hopsize = 50
 dim = 20
@@ -41,27 +42,64 @@ def t_test_2(folder, file1, file2, start, end, dist_func, feature_name):
     print sample2
     print stats.ttest_ind(sample1,sample2, equal_var=False)
 
-def machine_learning(folder, files, start, end, dist_func, feature_name):
+def machine_learning(folder, files, start, end, dist_func="cross_correlation", feature_name="raw_data", split=0.6, df=None):
     Y = []
     T = []
-    train_end = int(start + 0.8*(end-start))
+    train_end = int(start + split*(end-start))
     test_start = train_end + 1
     classes = []
+    print "Extracting Training"
     for i in range(len(files)):
+        print i
         infos = extract(folder, files[i], start, train_end)
         for info in infos:
             classes.append(info)
             Y.append(i)
-    X = pairwise_matrix(classes, classes, dist_func, feature_name)
     testing = []
+    testing_correct = []
+    print "Extracting Testing"
     for i in range(len(files)):
+        print i
         infos = extract(folder, files[i], test_start, end)
         for info in infos:
             testing.append(info)
-    T = pairwise_matrix(testing, classes, dist_func, feature_name)
-    clf = SVC(kernel="precomputed")
-    clf.fit(X, Y)
-    print clf.predict(T)
+            testing_correct.append(i)
+    if df == None:
+        print "Computing Training Distances"
+        X = pairwise_matrix_symmetric(classes, classes, dist_func, feature_name)
+        print "Computing Test Distances"
+        T = pairwise_matrix(testing, classes, dist_func, feature_name)
+        clf = SVC(kernel="precomputed")
+        clf.fit(X, Y)
+        print "predicting"
+        pred = clf.predict(T)
+        print pred
+    else:
+        for (func, feature) in df:
+            correct = lambda pred, testing_correct : 1.0*sum([1.0 for i in range(len(pred)) if pred[i] == testing_correct[i]])/len(pred)
+            print "Computing Training Distances {0} {1}".format(func, feature)
+            X = pairwise_matrix_symmetric(classes, classes, func, feature)
+            print "Computing Test Distances {0} {1}".format(func, feature)
+            T = pairwise_matrix(testing, classes, func, feature)
+            print "Correct Labels"
+            print testing_correct
+
+            print "Training SVM {0} {1}".format(func, feature)
+            clf = SVC(kernel="precomputed")
+            clf.fit(X, Y)
+            print "Predicting SVM {0} {1}".format(func, feature)
+            pred = clf.predict(T)
+            print pred
+            print correct(pred, testing_correct)
+
+            print "Training KNN {0} {1}".format(func, feature)
+            clf = KNeighborsClassifier(n_neighbors=3, metric="precomputed")
+            clf.fit(X, Y)
+            print "Predicting KNN {0} {1}".format(func, feature)
+            pred = clf.predict(T)
+            print pred
+            print correct(pred, testing_correct)
+
 
 if __name__ == '__main__':
     #t_test_2("Unlock","2017_03_30_au_{0}.wav","2017_03_30_ju_{0}.wav", 1, 5, "cross_correlation", "raw_data")
@@ -71,5 +109,7 @@ if __name__ == '__main__':
 
     #t_test_2("Open Sesame","2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav", 1, 5, "cross_correlation", "raw_data")
     #t_test_2("Open Sesame","2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav", 1, 5, "multiscale_kernel", "pd_1d")
-    machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "cross_correlation", "raw_data")
-    machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "multiscale_kernel", "pd_1d")
+    #machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "cross_correlation", "raw_data")
+    #machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "multiscale_kernel", "pd_1d")
+    #machine_learning("Open Sesame",["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav"],1,20, "cross_correlation", "raw_data")
+    machine_learning("Open Sesame",["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav"],1,40, df = [("euclidean","pd_top_bars"),("multiscale_kernel", "pd_1d"),("cross_correlation", "raw_data")])
