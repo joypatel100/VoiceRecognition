@@ -33,14 +33,26 @@ def extract(folder, filename, start, end):
         res.append(f[0])
     return res
 
-def t_test_2(folder, file1, file2, start, end, dist_func, feature_name):
+def t_test_2(folder, file1, file2, start, end, dist_func=None, feature_name=None, df=None):
     class1 = extract(folder, file1, start, end)
     class2 = extract(folder, file2, start, end)
-    sample1 = record_self_distances(class1, dist_func, feature_name)
-    sample2 = record_distances(class1, class2, dist_func, feature_name)
-    print sample1
-    print sample2
-    print stats.ttest_ind(sample1,sample2, equal_var=False)
+    if df == None:
+        sample1 = record_self_distances(class1, dist_func, feature_name)
+        sample2 = record_distances(class1, class2, dist_func, feature_name)
+        print sample1
+        print sample2
+        print stats.ttest_ind(sample1,sample2, equal_var=False)
+    else:
+        for func,feature in df:
+            print "Self Distances {0} {1}".format(func, feature)
+            sample1 = record_self_distances(class1, func, feature)
+            print "Distances {0} {1}".format(func, feature)
+            sample2 = record_distances(class1, class2, func, feature)
+            print "Testing Results {0} {1}".format(func, feature)
+            #print sample1
+            #print sample2
+            print stats.ttest_ind(sample1,sample2, equal_var=False)
+
 
 def machine_learning(folder, files, start, end, dist_func="cross_correlation", feature_name="raw_data", split=0.6, df=None):
     Y = []
@@ -58,6 +70,7 @@ def machine_learning(folder, files, start, end, dist_func="cross_correlation", f
     testing = []
     testing_correct = []
     print "Extracting Testing"
+    res = []
     for i in range(len(files)):
         print i
         infos = extract(folder, files[i], test_start, end)
@@ -75,8 +88,8 @@ def machine_learning(folder, files, start, end, dist_func="cross_correlation", f
         pred = clf.predict(T)
         print pred
     else:
+        correct = lambda pred, testing_correct : 1.0*sum([1.0 for i in range(len(pred)) if pred[i] == testing_correct[i]])/len(pred)
         for (func, feature) in df:
-            correct = lambda pred, testing_correct : 1.0*sum([1.0 for i in range(len(pred)) if pred[i] == testing_correct[i]])/len(pred)
             print "Computing Training Distances {0} {1}".format(func, feature)
             X = pairwise_matrix_symmetric(classes, classes, func, feature)
             print "Computing Test Distances {0} {1}".format(func, feature)
@@ -90,7 +103,9 @@ def machine_learning(folder, files, start, end, dist_func="cross_correlation", f
             print "Predicting SVM {0} {1}".format(func, feature)
             pred = clf.predict(T)
             print pred
-            print correct(pred, testing_correct)
+            c = correct(pred, testing_correct)
+            print c
+            res.append(c)
 
             print "Training KNN {0} {1}".format(func, feature)
             clf = KNeighborsClassifier(n_neighbors=3, metric="precomputed")
@@ -98,7 +113,10 @@ def machine_learning(folder, files, start, end, dist_func="cross_correlation", f
             print "Predicting KNN {0} {1}".format(func, feature)
             pred = clf.predict(T)
             print pred
-            print correct(pred, testing_correct)
+            c = correct(pred, testing_correct)
+            print c
+            res.append(c)
+    return res
 
 
 if __name__ == '__main__':
@@ -107,9 +125,22 @@ if __name__ == '__main__':
     #machine_learning("Unlock",["2017_03_30_au_{0}.wav","2017_03_30_ju_{0}.wav"],1,5, "cross_correlation", "raw_data")
     #machine_learning("Unlock",["2017_03_30_au_{0}.wav","2017_03_30_ju_{0}.wav"],1,5, "multiscale_kernel", "pd_1d")
 
-    #t_test_2("Open Sesame","2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav", 1, 5, "cross_correlation", "raw_data")
-    #t_test_2("Open Sesame","2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav", 1, 5, "multiscale_kernel", "pd_1d")
+    #t_test_2("Open Sesame","OS Loreanne/OS Loreanne {0}.wav","OS Eden/OS Eden {0}.wav", 1, 40, "cross_correlation", "raw_data")
+    #t_test_2("Open Sesame","OS Loreanne/OS Loreanne {0}.wav","OS Eden/OS Eden {0}.wav", 1, 40, "multiscale_kernel", "pd_1d")
     #machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "cross_correlation", "raw_data")
     #machine_learning("Open Sesame",["2017_03_30_og_{0}.wav","2017_03_30_jo_{0}.wav"],1,5, "multiscale_kernel", "pd_1d")
     #machine_learning("Open Sesame",["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav"],1,20, "cross_correlation", "raw_data")
-    machine_learning("Open Sesame",["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav"],1,40, df = [("euclidean","pd_top_bars"),("multiscale_kernel", "pd_1d"),("cross_correlation", "raw_data")])
+    #f = ["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav","OS Sam/OS Sam {0}.wav","OS Eden/OS Eden {0}.wav"]
+    df = [("canberra","binned_pd_1d"),("braycurtis","binned_pd_1d"),("euclidean","binned_pd_1d"),("euclidean","pd_top_bars"),("inv_cross_correlation", "raw_data"), ("multiscale_kernel", "pd_1d")]
+    t_test_2("Open Sesame","OS Sam/OS Sam {0}.wav","OS Eden/OS Eden {0}.wav", 1, 40,df=df)
+    #print machine_learning("Open Sesame",f,1,40, df = df)
+    '''
+    res = []
+    for i in range(len(f)):
+        for j in range(i+1,len(f)):
+            res.append(np.array(machine_learning("Open Sesame",[f[i],f[j]],1,40, df = df)))
+            print res
+    print res
+    print np.mean(np.array(res),axis=0)
+    '''
+    #machine_learning("Open Sesame",["OS Loreanne/OS Loreanne {0}.wav","OS Lijia/OS Lijia {0}.wav"],1,40, df = [("canberra","binned_pd_1d"),("braycurtis","binned_pd_1d"),("euclidean","binned_pd_1d"),("euclidean","pd_top_bars"),("cross_correlation", "raw_data"),("inv_cross_correlation", "raw_data"), ("multiscale_kernel", "pd_1d")])

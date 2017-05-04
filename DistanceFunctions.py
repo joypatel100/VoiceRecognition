@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from scipy.spatial.distance import canberra, braycurtis
 
 def record_distances(pc0, pc1, func, feature_name):
     res = []
@@ -52,6 +53,9 @@ Finds the cross correlation between raw inputs u and v.
 def cross_correlation(u, v):
     return max(np.correlate(u,v))
 
+def inv_cross_correlation(u, v):
+    return 1.0/cross_correlation(u,v)
+
 def euclidean_pairwise_squared(X,Y):
 	return np.sum(X**2,1)[:,None] + np.sum(Y**2,1)[None,:] - 2.0*np.dot(X,Y.T)
 
@@ -73,5 +77,8 @@ def multiscale_kernel_slow(P, Q, sigma=1.0):
 dist_functions = {
     "euclidean" : euclidean,
     "cross_correlation" : cross_correlation,
-    "multiscale_kernel" : multiscale_kernel
+    "multiscale_kernel" : multiscale_kernel,
+    "canberra" : canberra,
+    "braycurtis" : braycurtis,
+    "inv_cross_correlation" : inv_cross_correlation
 }
