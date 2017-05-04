@@ -36,8 +36,11 @@
 
 \begin{document}
 \maketitle
-\newpage
 
+\newpage
+\tableofcontents
+
+\newpage
 \section{Introduction}
 \-\hspace{1cm} Our project focuses on the topic of voice discrimination. While
 the problem of voice recognition—which involves converting voice to text—is widely discussed
@@ -75,7 +78,13 @@ diagram.
 results. The 3rd MFCC coefficient of an audio sample generally created point
 clouds with visible cycles in 2D PCA. When we did TDA on the point cloud, we
 saw clearly distinguished 1D persistence points above the diagonal:
-\newline \-\hspace{1cm} We then used the topological features and the raw audio
+\newpage
+\begin{figure}[!ht]
+\centering
+\includegraphics[width=0.8\textwidth]{pd.png}
+\caption{1D Homology Persistence Diagram of MFCC Features from Voice Sample}
+\end{figure}
+\-\hspace{1cm} We then used the topological features and the raw audio
 data as input to subsequent steps in the pipeline.
 
 \subsection{Distance Metrics}
@@ -105,21 +114,123 @@ diagrams.
 \end{enumerate}
 
 \subsection{Statistics and Machine Learning}
-\-\hspace{1cm} To discriminate between voice samples from different people, we
-put the features extracted from the samples into classifiers and conducted
-statistical tests.
+\-\hspace{1cm} In our research, we wish to experiment with both the predictive
+capablities of the distance functions with a variety of features. To
+discriminate between voice samples from different people, we put the features
+extracted from the samples into statistical tests and  classifiers with a
+correspondingly appropriate distance metrics.
 \subsubsection{Two Sample T Test}
 \-\hspace{1cm} We took sets of feature vectors from voice samples of different
 people, calculated distances between pairs of vectors within and pairs of
 vectors across sets, and ran a two-sided t-test to determine whether the
 distances of vector pairs within a set were statistically distinguishable from
-the distances of vector pairs across sets.
+the distances of vector pairs across sets. 
+\newline \-\hspace{1cm} More concretely: first choose a feature and a
+corresponding distance metric $d$. Let $C_i$ be collection of that feature
+for person $i$. So, for instance, if the feature you chose was MFCC binned
+persistence diagrams, then $C_i$ would be the set of MFCC binned persistence
+diagrams for person $i$. Let $C_j, C_k$ feature from voice samples from 2
+different people (i.e., 2 different classes).
+For $C_k$ and $C_j$, construct $S_1$ and $S_2$ as follows: $S_1 =
+\{d(x,y) : x, y \in C_k, x \neq y\}$ and $S_2 = \{d(x,y): x \in C_k, y \in
+C_j\}$. Using $S_1$ and $S_2$, run a two sample t-test. The results of this test
+will show whether the feature and distance metric chosen have discriminatory
+power.
 \subsubsection{Classifiers}
 \-\hspace{1cm} We trained classifiers on feature vectors extracted from voice
 samples of people and used the different distance metrics mentioned above for
 classification. We experimented with both binary classification (using 2 labels
 at a time) as well as multi-label (4 labels) classification. We use the
 following sets of (feature, distance metric) pairs:
+\begin{enumerate}
+  \item (Binned Persistence Diagrams, Canberra Metric)
+  \item (Binned Persistence Diagrams, Bray-Curtis Metric)
+  \item (Binned Persistence Diagrams, Euclidean Metric)
+  \item (Top 10 Persistence Bars, Euclidean Metric)
+  \item (Raw Data, Inverse Cross Correlation)
+  \item (Persistence Diagram, Multiscale Kernel Metric)
+\end{enumerate}
 
+\section{Results}
+\subsection{Two Sample T Test Results}
+\-\hspace{1cm} The results for a 2 sample T test are shown below for 2 of the
+classes.
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{||c|c|c||}
+\hline
+(feature, metric) & Test Statistics & P-Value \\ 
+\hline 
+Binned Persistence Diagrams, Canberra Metric & -21.420 & 9.848e-91 \\ 
+\hline
+Binned Persistence Diagrams, Bray-Curtis Metric & -7.481 & 1.185e-13 \\
+\hline 
+Binned Persistence Diagrams, Euclidean Metric & -4.218 & 2.601e-05 \\ 
+\hline
+Top 10 Persistence Bars, Euclidean Metric & 2.112 & 0.0348 \\
+\hline
+Raw Data, Inverse Cross Correlation & -0.337 & 0.736 \\
+\hline
+Persistence Diagram, Multiscale Kernel Metric & -2.405 & 0.016 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Binary Classification Average Results}
+\end{figure}
+
+\newpage
+\subsection{Classification Results}
+\-\hspace{1cm} The results for binary classification are shown below. Here, we
+take all pairwise combinations of the classes and compute the percent of
+correct true positives achieved by the (feature, metric) pair per combination.
+The table shows the average of this percent across all combinations.
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{||c|c|c||}
+\hline
+(feature, metric) & SVM & KNN \\ 
+\hline 
+Binned Persistence Diagrams, Canberra Metric & 0.140625 & 0.8125 \\ 
+\hline
+Binned Persistence Diagrams, Bray-Curtis Metric & 0.21875 & 0.78125 \\
+\hline 
+Binned Persistence Diagrams, Euclidean Metric & 0.36458333 & 0.77604167 \\ 
+\hline
+Top 10 Persistence Bars, Euclidean Metric & 0.48958333 & 0.53645833 \\
+\hline
+Raw Data, Inverse Cross Correlation & 0.42708333 & 0.71875 \\
+\hline
+Persistence Diagram, Multiscale Kernel Metric & 0.57291667 & 0.5 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{Binary Classification Average Results}
+\end{figure}
+
+\begin{figure}[!ht]
+\begin{center}
+\begin{tabular}{||c|c|c||}
+\hline
+(feature, metric) & SVM & KNN \\ 
+\hline 
+Binned Persistence Diagrams, Canberra Metric & 0.0 & 0.5625 \\ 
+\hline
+Binned Persistence Diagrams, Bray-Curtis Metric & 0.046875 & 0.546875 \\
+\hline 
+Binned Persistence Diagrams, Euclidean Metric & 0.078125 & 0.515625 \\ 
+\hline
+Top 10 Persistence Bars, Euclidean Metric & 0.265625 & 0.15625 \\
+\hline
+Raw Data, Inverse Cross Correlation & 0.296875 & 0.59375 \\
+\hline
+Persistence Diagram, Multiscale Kernel Metric & 0.3125 & 0.25 \\
+\hline
+\end{tabular}
+\end{center}
+\caption{4 Multi-Label Classification Results}
+\end{figure}
+	
+\section{Conclusion}
+asdfs
 
 \end{document}

@@ -1,2 +1,13 @@
 \select@language {english}
-\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}
+\contentsline {section}{\numberline {2}Data}{3}{section.2}
+\contentsline {section}{\numberline {3}Process}{3}{section.3}
+\contentsline {subsection}{\numberline {3.1}Audio Feature Extraction for Topology}{3}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Distance Metrics}{4}{subsection.3.2}
+\contentsline {subsection}{\numberline {3.3}Statistics and Machine Learning}{4}{subsection.3.3}
+\contentsline {subsubsection}{\numberline {3.3.1}Two Sample T Test}{5}{subsubsection.3.3.1}
+\contentsline {subsubsection}{\numberline {3.3.2}Classifiers}{5}{subsubsection.3.3.2}
+\contentsline {section}{\numberline {4}Results}{5}{section.4}
+\contentsline {subsection}{\numberline {4.1}Two Sample T Test Results}{5}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Classification Results}{6}{subsection.4.2}
+\contentsline {section}{\numberline {5}Conclusion}{6}{section.5}
